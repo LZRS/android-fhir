@@ -25,12 +25,13 @@ import org.opencds.cqf.cql.engine.fhir.model.R4FhirModelResolver
 import org.opencds.cqf.cql.evaluator.engine.model.CachingModelResolverDecorator
 import org.opencds.cqf.cql.evaluator.fhir.adapter.r4.AdapterFactory
 import org.opencds.cqf.cql.evaluator.measure.r4.R4MeasureProcessor
+import org.opencds.cqf.cql.evaluator.plandefinition.r4.PlanDefinitionProcessor
 
 class FhirOperator(fhirContext: FhirContext, fhirEngine: FhirEngine) {
   private var measureProcessor: R4MeasureProcessor
-  val fhirEngineDal = FhirEngineDal(fhirEngine)
+  private val fhirEngineDal = FhirEngineDal(fhirEngine)
   val adapterFactory = AdapterFactory()
-  val libraryContentProvider = FhirEngineLibraryContentProvider(adapterFactory)
+  private val libraryContentProvider = FhirEngineLibraryContentProvider(adapterFactory)
 
   init {
     val terminologyProvider = FhirEngineTerminologyProvider(fhirContext, fhirEngine)
@@ -46,6 +47,9 @@ class FhirOperator(fhirContext: FhirContext, fhirEngine: FhirEngine) {
       )
     measureProcessor =
       R4MeasureProcessor(terminologyProvider, libraryContentProvider, dataProvider, fhirEngineDal)
+
+    val a = PlanDefinitionProcessor()
+    a.apply()
   }
 
   fun loadLib(lib: Library) {

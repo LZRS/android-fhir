@@ -29,9 +29,10 @@ kotlin-stdlib = "1.9.22"
 kotlin-test = "1.9.22"
 kotlinx-coroutines = "1.8.1"
 logback-android = "3.0.0"
+material = "1.9.0"
+mitre-synthea = "3.3.0"
 opencds-cqf-fhir = "3.8.0"
 truth = "1.1.5"
-material = "1.9.0"
 
 [libraries]
 android-fhir-common = { module = "com.google.android.fhir:common", version.ref = "android-fhir-common" }
@@ -75,11 +76,12 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-playservices = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 logback-android = { module = "com.github.tony19:logback-android", version.ref = "logback-android" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+mitre-synthea = { group = "org.mitre.synthea", name = "synthea", version.ref = "mitre-synthea"}
 opencds-cqf-fhir-cr = { module = "org.opencds.cqf.fhir:cqf-fhir-cr", version.ref = "opencds-cqf-fhir" }
 opencds-cqf-fhir-jackson = { module = "org.opencds.cqf.fhir:cqf-fhir-jackson", version.ref = "opencds-cqf-fhir" }
 opencds-cqf-fhir-utility = { module = "org.opencds.cqf.fhir:cqf-fhir-utility", version.ref = "opencds-cqf-fhir" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [bundles]
 

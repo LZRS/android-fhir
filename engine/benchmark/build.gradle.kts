@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
   id(Plugins.BuildPlugins.androidLib)
   id(Plugins.BuildPlugins.kotlinAndroid)
@@ -34,7 +36,9 @@ android {
         "META-INF/LGPL-3.0.txt",
         "META-INF/sun-jaxb.episode",
         "META-INF/*.kotlin_module",
+        "META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat",
         "readme.html",
+        "log4j2.xml"
       ),
     )
   }
@@ -50,6 +54,13 @@ android {
 
 afterEvaluate { configureFirebaseTestLabForMicroBenchmark() }
 
+configurations {
+  all {
+    exclude(module = "xpp3")
+    exclude(module = "jcl-over-slf4j")
+  }
+}
+
 dependencies {
   androidTestImplementation(Dependencies.Retrofit.coreRetrofit)
   androidTestImplementation(Dependencies.mockWebServer)
@@ -61,10 +72,17 @@ dependencies {
   androidTestImplementation(libs.junit)
   androidTestImplementation(libs.kotlinx.coroutines.android)
   androidTestImplementation(libs.truth)
+  androidTestImplementation(libs.mitre.synthea)
 
   androidTestImplementation(project(":engine"))
   // for test json files only
   androidTestImplementation(project(":workflow-testing"))
 
   coreLibraryDesugaring(Dependencies.desugarJdkLibs)
+
+  constraints {
+    Dependencies.hapiFhirConstraints().forEach { (libName, constraints) ->
+      androidTestImplementation(libName, constraints)
+    }
+  }
 }

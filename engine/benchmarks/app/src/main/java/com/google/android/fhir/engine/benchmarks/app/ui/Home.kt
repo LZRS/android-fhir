@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.android.fhir.engine.benchmarks.app.ui
 
 import androidx.annotation.DrawableRes
@@ -27,7 +43,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.fhir.engine.benchmarks.app.R
@@ -36,87 +51,81 @@ import com.google.android.fhir.engine.benchmarks.app.ui.theme.AndroidfhirTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(
-    navigateToCrudScreen: () -> Unit,
-    navigateToSearchScreen: () -> Unit,
-    navigateToSyncScreen: () -> Unit
+  navigateToCrudScreen: () -> Unit,
+  navigateToSearchScreen: () -> Unit,
+  navigateToSyncScreen: () -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text(stringResource(R.string.app_name)) })
-        },
-        modifier = Modifier.fillMaxSize()
-    ) { innerPadding ->
-        Box(
-            Modifier
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                ActionCard(
-                    title = "CRUD",
-                    imageId = R.drawable.ic_outline_database_24,
-                    onActionClick = navigateToCrudScreen
-                )
+  Scaffold(
+    topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) },
+    modifier = Modifier.fillMaxSize(),
+  ) { innerPadding ->
+    Box(
+      Modifier.padding(innerPadding).padding(horizontal = 16.dp),
+    ) {
+      Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        ActionCard(
+          title = "CRUD",
+          imageId = R.drawable.ic_outline_database_24,
+          onActionClick = navigateToCrudScreen,
+        )
 
-                ActionCard(
-                    title = "Search API",
-                    imageId = R.drawable.ic_home_search,
-                    onActionClick = navigateToSearchScreen
-                )
+        ActionCard(
+          title = "Search API",
+          imageId = R.drawable.ic_home_search,
+          onActionClick = navigateToSearchScreen,
+        )
 
-                ActionCard(
-                    title = "Sync API",
-                    imageId = R.drawable.ic_home_sync,
-                    onActionClick = navigateToSyncScreen
-                )
-            }
-        }
+        ActionCard(
+          title = "Sync API",
+          imageId = R.drawable.ic_home_sync,
+          onActionClick = navigateToSyncScreen,
+        )
+      }
     }
+  }
 }
 
 @Composable
 fun ActionCard(
-    title: String,
-    @DrawableRes imageId: Int,
-    modifier: Modifier = Modifier,
-    onActionClick: () -> Unit
+  title: String,
+  @DrawableRes imageId: Int,
+  modifier: Modifier = Modifier,
+  onActionClick: () -> Unit,
 ) {
-    Card(
-        onClick = onActionClick,
-        shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White,
-        ),
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(30.dp)) {
-            Image(
-                painterResource(imageId),
-                contentDescription = title,
-                modifier = Modifier.size(36.dp, 36.dp)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = title,
-                maxLines = 1,
-                style = MaterialTheme.typography.titleLarge,
-                fontSize = 20.sp
-            )
-        }
+  Card(
+    onClick = onActionClick,
+    shape = RoundedCornerShape(10.dp),
+    colors =
+      CardDefaults.cardColors(
+        containerColor = Color.White,
+      ),
+    modifier = modifier.fillMaxWidth(),
+  ) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(30.dp)) {
+      Image(
+        painterResource(imageId),
+        contentDescription = title,
+        modifier = Modifier.size(36.dp, 36.dp),
+      )
+      Spacer(Modifier.width(8.dp))
+      Text(
+        text = title,
+        maxLines = 1,
+        style = MaterialTheme.typography.titleLarge,
+        fontSize = 20.sp,
+      )
     }
+  }
 }
 
 @Composable
 @Preview
 fun HomePreview() {
-    Home({}, {}, {})
+  Home({}, {}, {})
 }
-
 
 @Preview(showBackground = true)
 @Composable
 fun ActionCardPreview() {
-    AndroidfhirTheme {
-        ActionCard("Android", R.drawable.ic_outline_database_24) {}
-    }
+  AndroidfhirTheme { ActionCard("Android", R.drawable.ic_outline_database_24) {} }
 }

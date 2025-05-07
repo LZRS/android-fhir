@@ -66,7 +66,7 @@ fun AndroidfhirApp(viewModel: MainViewModel) {
     }
 
     composable<Screen.CRUDDetailScreen> {
-      CrudDetail(viewModel.createStateFlow, { viewModel.traceDataAccess() }) {
+      CrudDetail(viewModel.createStateFlow, viewModel.getStateFlow, viewModel.updateStateFlow, viewModel.deleteStateFlow, { viewModel.traceDataAccess() }) {
         navController.popBackStack()
       }
     }

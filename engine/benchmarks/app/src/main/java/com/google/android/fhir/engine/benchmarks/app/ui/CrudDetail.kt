@@ -16,7 +16,9 @@
 
 package com.google.android.fhir.engine.benchmarks.app.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -32,18 +34,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.fhir.engine.benchmarks.app.CreateUiState
-import kotlin.time.Duration.Companion.milliseconds
+import com.google.android.fhir.engine.benchmarks.app.BenchmarkDuration
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun CrudDetail(
-  createUiStateFlow: StateFlow<CreateUiState>,
+  createStateFlow: StateFlow<List<BenchmarkDuration>>,
+  getStateFlow: StateFlow<List<BenchmarkDuration>>,
+  updateStateFlow: StateFlow<List<BenchmarkDuration>>,
+  deleteStateFlow: StateFlow<List<BenchmarkDuration>>,
   runBenchmark: () -> Unit,
-  navigateToHome: () -> Unit
+  navigateToHome: () -> Unit,
 ) {
-  val createUiState = createUiStateFlow.collectAsStateWithLifecycle()
+  val createUiState = createStateFlow.collectAsStateWithLifecycle()
+  val getUiState = getStateFlow.collectAsStateWithLifecycle()
+  val updateUiState = updateStateFlow.collectAsStateWithLifecycle()
+  val deleteUiState = deleteStateFlow.collectAsStateWithLifecycle()
 
   LaunchedEffect(true) { runBenchmark() }
 
@@ -56,15 +65,77 @@ fun CrudDetail(
         ),
       modifier = Modifier.fillMaxSize().padding(16.dp),
     ) {
-      when (createUiState.value) {
-        is CreateUiState.Loading -> {}
-        is CreateUiState.Result -> {
+      Column(verticalArrangement = Arrangement.spacedBy(8.dp)){
+        if (createUiState.value.isNotEmpty()) {
           Column(Modifier.padding(8.dp)) {
             Text("Create API")
             Spacer(Modifier.size(8.dp))
-            Text("${(createUiState.value as CreateUiState.Result).value.first}")
-            Text("${(createUiState.value as CreateUiState.Result).value.second}")
+            FlowRow {
+              createUiState.value.forEach {
+                Column {
+                  Text("${it.first}")
+                  Text("${it.second}")
+                }
+                Spacer(Modifier.size(8.dp))
+              }
+            }
           }
+        } else {
+          // Show loading
+        }
+
+        if (getUiState.value.isNotEmpty()) {
+          Column(Modifier.padding(8.dp)) {
+            Text("Get API")
+            Spacer(Modifier.size(8.dp))
+            FlowRow {
+              getUiState.value.forEach {
+                Column {
+                  Text("${it.first}")
+                  Text("${it.second}")
+                }
+                Spacer(Modifier.size(8.dp))
+              }
+            }
+          }
+        } else {
+          // Show loading
+        }
+
+        if (updateUiState.value.isNotEmpty()) {
+          Column(Modifier.padding(8.dp)) {
+            Text("Update API")
+            Spacer(Modifier.size(8.dp))
+            FlowRow {
+              updateUiState.value.forEach {
+                Column {
+                  Text("${it.first}")
+                  Text("${it.second}")
+                }
+                Spacer(Modifier.size(8.dp))
+              }
+            }
+          }
+        } else {
+          // Show loading
+        }
+
+        if (deleteUiState.value.isNotEmpty()) {
+          Column(Modifier.padding(8.dp)) {
+            Text("Delete API")
+            Spacer(Modifier.size(8.dp))
+            FlowRow {
+              deleteUiState.value.forEach {
+                Column {
+                  Text("${it.first}")
+                  Text("${it.second}")
+                }
+                Spacer(Modifier.size(8.dp))
+              }
+            }
+          }
+        } else {
+          // Show loading
         }
       }
     }
@@ -74,5 +145,10 @@ fun CrudDetail(
 @Preview
 @Composable
 fun PreviewCrudDetail() {
-  CrudDetail(MutableStateFlow(CreateUiState.Result(Pair(1000, 3000.milliseconds))), {}) {}
+  CrudDetail(
+    MutableStateFlow(listOf(BenchmarkDuration(200, 4.seconds))),
+    MutableStateFlow(listOf(BenchmarkDuration(0, 30.milliseconds))),
+    MutableStateFlow(listOf(BenchmarkDuration(1, 240.milliseconds))),
+    MutableStateFlow(listOf(BenchmarkDuration(0, 1.milliseconds))),
+    {}) {}
 }

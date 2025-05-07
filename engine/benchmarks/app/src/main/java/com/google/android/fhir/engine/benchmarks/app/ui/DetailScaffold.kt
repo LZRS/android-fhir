@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 fun DetailScaffold(
   appBarTitle: String,
   navigateToHome: () -> Unit,
-  content: @Composable () -> Unit
+  content: @Composable () -> Unit,
 ) {
   Scaffold(
     topBar = {
@@ -51,7 +51,7 @@ fun DetailScaffold(
               contentDescription = "Localized description",
             )
           }
-        }
+        },
       )
     },
     modifier = Modifier.fillMaxSize(),

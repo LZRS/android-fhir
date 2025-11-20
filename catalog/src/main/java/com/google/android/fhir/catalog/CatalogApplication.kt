@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2024 Google LLC
+ * Copyright 2022-2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.FhirEngineConfiguration
 import com.google.android.fhir.FhirEngineProvider
 import com.google.android.fhir.datacapture.DataCaptureConfig
-import com.google.android.fhir.search.search
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,9 +40,12 @@ class CatalogApplication : Application(), DataCaptureConfig.Provider {
 
     dataCaptureConfig =
       DataCaptureConfig(
-        xFhirQueryResolver = { fhirEngine.search(it).map { it.resource } },
-        questionnaireItemViewHolderFactoryMatchersProviderFactory =
-          ContribQuestionnaireItemViewHolderFactoryMatchersProviderFactory,
+        xFhirQueryResolver = {
+          //            fhirEngine.search(it).map { it.resource }
+          emptyList()
+        },
+        //        questionnaireItemViewHolderFactoryMatchersProviderFactory =
+        //          ContribQuestionnaireItemViewHolderFactoryMatchersProviderFactory,
       )
 
     CoroutineScope(Dispatchers.IO).launch {

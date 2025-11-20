@@ -77,7 +77,7 @@ kotlin {
         implementation(libs.androidx.lifecycle.runtime.compose)
         implementation(libs.kermit)
         implementation(libs.kotlinx.coroutines.core)
-        implementation(libs.kotlin.fhir)
+        api(libs.kotlin.fhir)
         implementation(libs.kotlinx.io.core)
         implementation(libs.kotlinx.serialization.json)
       }

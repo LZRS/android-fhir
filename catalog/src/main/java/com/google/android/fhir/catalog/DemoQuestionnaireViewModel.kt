@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 Google LLC
+ * Copyright 2022-2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,12 @@ package com.google.android.fhir.catalog
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
-import ca.uhn.fhir.context.FhirContext
-import ca.uhn.fhir.context.FhirVersionEnum
-import org.hl7.fhir.r4.model.QuestionnaireResponse
+import com.google.fhir.model.r4.FhirR4Json
+import com.google.fhir.model.r4.QuestionnaireResponse
 
 class DemoQuestionnaireViewModel(application: Application, private val state: SavedStateHandle) :
   AndroidViewModel(application) {
 
   fun getQuestionnaireResponseJson(response: QuestionnaireResponse) =
-    FhirContext.forCached(FhirVersionEnum.R4).newJsonParser().encodeResourceToString(response)
+    FhirR4Json().encodeToString(response)
 }

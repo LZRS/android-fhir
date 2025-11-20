@@ -30,8 +30,8 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.android.fhir.datacapture.theme.QuestionnaireTheme
 import com.google.android.fhir.datacapture.validation.Invalid
 import com.google.android.fhir.datacapture.validation.ValidationResult
 import com.google.android.fhir.datacapture.views.factories.QuestionnaireItemComposeViewHolderFactory
@@ -48,7 +48,13 @@ import timber.log.Timber
  * developer guide.
  */
 class QuestionnaireFragment : Fragment() {
-  private val viewModel: QuestionnaireViewModel by viewModels()
+  private val viewModel: QuestionnaireViewModel by lazy {
+    val state = buildMap {
+      val args = requireArguments()
+      args.keySet().forEach { key -> args.get(key)?.let { put(key, it) } }
+    }
+    QuestionnaireViewModel(state)
+  }
 
   /**
    * Provides a [QuestionnaireItemViewHolderFactoryMatcher]s which are used to evaluate whether a
@@ -92,10 +98,12 @@ class QuestionnaireFragment : Fragment() {
 
     return ComposeView(themedContext).apply {
       setContent {
-        QuestionnaireScreen(
-          viewModel = viewModel,
-          matchersProvider = questionnaireItemViewHolderFactoryMatchersProvider,
-        )
+        QuestionnaireTheme {
+          QuestionnaireScreen(
+            viewModel = viewModel,
+            matchersProvider = questionnaireItemViewHolderFactoryMatchersProvider,
+          )
+        }
       }
     }
   }

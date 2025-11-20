@@ -38,7 +38,7 @@ import ca.uhn.fhir.context.FhirContext
 import com.google.android.fhir.catalog.ModalBottomSheetFragment.Companion.BUNDLE_ERROR_KEY
 import com.google.android.fhir.catalog.ModalBottomSheetFragment.Companion.REQUEST_ERROR_KEY
 import com.google.android.fhir.datacapture.QuestionnaireFragment
-import com.google.android.fhir.datacapture.QuestionnaireFragment.Companion.SUBMIT_REQUEST_KEY
+import com.google.android.fhir.datacapture.SUBMIT_REQUEST_KEY
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Patient
@@ -140,10 +140,10 @@ class DemoQuestionnaireFragment : Fragment() {
           setReorderingAllowed(true)
           val questionnaireFragmentBuilder =
             QuestionnaireFragment.builder().apply {
-              setCustomQuestionnaireItemViewHolderFactoryMatchersProvider(
-                ContribQuestionnaireItemViewHolderFactoryMatchersProviderFactory
-                  .LOCATION_WIDGET_PROVIDER,
-              )
+              //              setCustomQuestionnaireItemViewHolderFactoryMatchersProvider(
+              //                ContribQuestionnaireItemViewHolderFactoryMatchersProviderFactory
+              //                  .LOCATION_WIDGET_PROVIDER,
+              //              )
               setQuestionnaire(args.questionnaireJsonStringKey!!)
             }
           LayoutListViewModel.questionnaireLambdaMap[args.questionnaireLambdaKey ?: ""]!!.invoke(

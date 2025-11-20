@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2024-2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,36 @@
 
 package com.google.android.fhir.catalog
 
-import com.google.android.fhir.datacapture.QuestionnaireFragment
-import com.google.android.fhir.datacapture.QuestionnaireItemViewHolderFactoryMatchersProviderFactory
-import com.google.android.fhir.datacapture.contrib.views.locationwidget.LocationGpsCoordinateViewHolderFactory
-import com.google.android.fhir.datacapture.contrib.views.locationwidget.LocationWidgetViewHolderFactory
-
-object ContribQuestionnaireItemViewHolderFactoryMatchersProviderFactory :
-  QuestionnaireItemViewHolderFactoryMatchersProviderFactory {
-
-  const val LOCATION_WIDGET_PROVIDER = "location-widget-provider"
-
-  override fun get(
-    provider: String,
-  ): QuestionnaireFragment.QuestionnaireItemViewHolderFactoryMatchersProvider =
-    when (provider) {
-      LOCATION_WIDGET_PROVIDER ->
-        object : QuestionnaireFragment.QuestionnaireItemViewHolderFactoryMatchersProvider() {
-          override fun get():
-            List<QuestionnaireFragment.QuestionnaireItemViewHolderFactoryMatcher> {
-            return listOf(
-              QuestionnaireFragment.QuestionnaireItemViewHolderFactoryMatcher(
-                factory = LocationGpsCoordinateViewHolderFactory,
-                matches = LocationGpsCoordinateViewHolderFactory::matcher,
-              ),
-              QuestionnaireFragment.QuestionnaireItemViewHolderFactoryMatcher(
-                factory = LocationWidgetViewHolderFactory,
-                matches = LocationWidgetViewHolderFactory::matcher,
-              ),
-            )
-          }
-        }
-      else -> throw NotImplementedError()
-    }
-}
+// import
+// com.google.android.fhir.datacapture.contrib.views.locationwidget.LocationGpsCoordinateViewHolderFactory
+// import
+// com.google.android.fhir.datacapture.contrib.views.locationwidget.LocationWidgetViewHolderFactory
+//
+// object ContribQuestionnaireItemViewHolderFactoryMatchersProviderFactory :
+//  QuestionnaireItemViewHolderFactoryMatchersProviderFactory {
+//
+//  const val LOCATION_WIDGET_PROVIDER = "location-widget-provider"
+//
+//  override fun get(
+//    provider: String,
+//  ): QuestionnaireFragment.QuestionnaireItemViewHolderFactoryMatchersProvider =
+//    when (provider) {
+//      LOCATION_WIDGET_PROVIDER ->
+//        object : QuestionnaireFragment.QuestionnaireItemViewHolderFactoryMatchersProvider() {
+//          override fun get():
+//            List<QuestionnaireFragment.QuestionnaireItemViewHolderFactoryMatcher> {
+//            return listOf(
+//              QuestionnaireFragment.QuestionnaireItemViewHolderFactoryMatcher(
+//                factory = LocationGpsCoordinateViewHolderFactory,
+//                matches = LocationGpsCoordinateViewHolderFactory::matcher,
+//              ),
+//              QuestionnaireFragment.QuestionnaireItemViewHolderFactoryMatcher(
+//                factory = LocationWidgetViewHolderFactory,
+//                matches = LocationWidgetViewHolderFactory::matcher,
+//              ),
+//            )
+//          }
+//        }
+//      else -> throw NotImplementedError()
+//    }
+// }

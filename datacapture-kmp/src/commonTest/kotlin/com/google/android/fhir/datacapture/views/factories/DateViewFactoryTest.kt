@@ -41,6 +41,7 @@ import com.google.android.fhir.datacapture.extensions.FhirR4Boolean
 import com.google.android.fhir.datacapture.extensions.FhirR4DateType
 import com.google.android.fhir.datacapture.extensions.FhirR4String
 import com.google.android.fhir.datacapture.extensions.toAnnotatedString
+import com.google.android.fhir.datacapture.setQuestionnaireContent
 import com.google.android.fhir.datacapture.theme.QuestionnaireTheme
 import com.google.android.fhir.datacapture.validation.Invalid
 import com.google.android.fhir.datacapture.validation.NotValidated
@@ -48,6 +49,7 @@ import com.google.android.fhir.datacapture.views.QuestionTextConfiguration
 import com.google.android.fhir.datacapture.views.QuestionnaireViewItem
 import com.google.android.fhir.datacapture.views.components.DATE_TEXT_INPUT_FIELD
 import com.google.android.fhir.datacapture.views.components.ERROR_TEXT_AT_HEADER_TEST_TAG
+import com.google.android.fhir.datacapture.views.components.HANDLE_INPUT_DEBOUNCE_TIME
 import com.google.android.fhir.datacapture.views.components.QUESTION_HEADER_TAG
 import com.google.fhir.model.r4.Enumeration
 import com.google.fhir.model.r4.Extension
@@ -58,7 +60,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlinx.datetime.LocalDate
@@ -139,40 +140,6 @@ class DateViewFactoryTest {
     }
 
   @Test
-  @Ignore
-  fun shouldSetDateInput_localeUs() =
-    runComposeUiTest {
-      //    setLocale(Locale.US)
-      //    val questionnaireViewItem =
-      //      QuestionnaireViewItem(
-      //        Questionnaire.Item(
-      //          linkId = FhirR4String(value = "date-item"),
-      //          type = Enumeration(value = Questionnaire.QuestionnaireItemType.Date),
-      //          text = FhirR4String(value = "Question?"),
-      //        ),
-      //        QuestionnaireResponse.Item(
-      //          linkId = FhirR4String(value = "date-item"),
-      //          answer =
-      //            listOf(
-      //              QuestionnaireResponse.Item.Answer(
-      //                value =
-      //                  QuestionnaireResponse.Item.Answer.Value.Date(
-      //                    value = FhirR4DateType(value = FhirDate.fromString("2020-10-19")),
-      //                  ),
-      //              ),
-      //            ),
-      //        ),
-      //        validationResult = NotValidated,
-      //        answersChangedCallback = { _, _, _, _ -> },
-      //      )
-      //
-      //    setContent { QuestionnaireDateView(questionnaireViewItem) }
-      //
-      //    onNodeWithTag(DATE_TEXT_INPUT_FIELD, useUnmergedTree =
-      // true).assertTextEquals("11/19/2020")
-    }
-
-  @Test
   fun showDateFormatLabelInLowerCase() = runComposeUiTest {
     val questionnaireViewItem =
       QuestionnaireViewItem(
@@ -196,64 +163,6 @@ class DateViewFactoryTest {
 
     onNodeWithTag(DATE_TEXT_INPUT_FIELD).assertTextEquals("mm/dd/yyyy", includeEditableText = false)
   }
-
-  @Test
-  @Ignore
-  fun shouldSetDateInput_localeJp() =
-    runComposeUiTest {
-      //    setLocale(Locale.JAPAN)
-      //      val questionnaireViewItem = QuestionnaireViewItem(
-      //          Questionnaire.Item(
-      //              linkId = FhirR4String(value = "date-item"),
-      //              type = Enumeration(value = Questionnaire.QuestionnaireItemType.Date),
-      //              text = FhirR4String(value = "Question?")
-      //          ),
-      //          QuestionnaireResponse.Item(linkId = FhirR4String(value = "date-item"),
-      //              answer = listOf(
-      //                  QuestionnaireResponse.Item.Answer(
-      //                      value = QuestionnaireResponse.Item.Answer.Value.Date(value =
-      // FhirR4DateType(value =
-      // FhirDate.Date(LocalDate(2020, 10, 19))))
-      //                  )
-      //              )),
-      //          validationResult = NotValidated,
-      //
-      //          answersChangedCallback = { _, _, _, _ -> },
-      //      )
-      //
-      //    setContent { QuestionnaireDateView(questionnaireViewItem) }
-      //    onNodeWithTag(DATE_TEXT_INPUT_FIELD, useUnmergedTree = true)
-      //      .assertTextEquals("2020/11/19")
-    }
-
-  @Test
-  @Ignore
-  fun shouldSetDateInput_localeEn() =
-    runComposeUiTest {
-      //    setLocale(Locale.ENGLISH)
-      //      val questionnaireViewItem = QuestionnaireViewItem(
-      //          Questionnaire.Item(
-      //              linkId = FhirR4String(value = "date-item"),
-      //              type = Enumeration(value = Questionnaire.QuestionnaireItemType.Date),
-      //              text = FhirR4String(value = "Question?")
-      //          ),
-      //          QuestionnaireResponse.Item(linkId = FhirR4String(value = "date-item"),
-      //                            answer = listOf(
-      //                  QuestionnaireResponse.Item.Answer(
-      //                      value = QuestionnaireResponse.Item.Answer.Value.Date(value =
-      // FhirR4DateType(value =
-      // FhirDate.Date(LocalDate(2020, 10, 19))))
-      //                  )
-      //              )),
-      //          validationResult = NotValidated,
-      //          answersChangedCallback = { _, _, _, _ -> },
-      //      )
-      //
-      //      setContent { QuestionnaireDateView(questionnaireViewItem) }
-      //
-      //    onNodeWithTag(DATE_TEXT_INPUT_FIELD, useUnmergedTree = true)
-      //      .assertTextEquals("11/19/2020")
-    }
 
   @Test
   fun shouldSetDateInput() = runComposeUiTest {
@@ -291,60 +200,6 @@ class DateViewFactoryTest {
 
     onNodeWithTag(DATE_TEXT_INPUT_FIELD, useUnmergedTree = true).assertTextEquals("19/11/2020")
   }
-
-  @Test
-  @Ignore
-  fun parseDateTextInputInUsLocale() =
-    runComposeUiTest {
-      //    setLocale(Locale.US)
-      //    var answers: List<QuestionnaireResponse.Item.Answer>? = null
-      //    val item =
-      //      QuestionnaireViewItem(
-      //        Questionnaire.Item(
-      //          linkId = FhirR4String(value = "date-item"),
-      //          type = Enumeration(value = Questionnaire.QuestionnaireItemType.Date),
-      //        ),
-      //        QuestionnaireResponse.Item(linkId = FhirR4String(value = "date-item")),
-      //        validationResult = NotValidated,
-      //        answersChangedCallback = { _, _, result, _ -> answers = result },
-      //      )
-      //
-      //    setContent { QuestionnaireDateView(item) }
-      //    onNodeWithTag(DATE_TEXT_INPUT_FIELD).performTextInput("11/19/2020")
-      //    waitUntil { answers != null }
-      //
-      //    val answer = (answers!!.single().value?.asDate()?.value?.value as? FhirDate.Date)?.date
-      //
-      //      answer?.day.shouldBe(19)
-      //      answer?.month.shouldBe(10)
-      //      answer?.year.shouldBe(2020)
-    }
-
-  @Test
-  @Ignore
-  fun parseDateTextInputInJapanLocale() =
-    runComposeUiTest {
-      //    setLocale(Locale.JAPAN)
-      //    var answers: List<QuestionnaireResponse.Item.Answer>? = null
-      //    val item =
-      //      QuestionnaireViewItem(
-      //        Questionnaire.Item(
-      //          linkId = FhirR4String(value = "date-item"),
-      //          type = Enumeration(value = Questionnaire.QuestionnaireItemType.Date),
-      //        ),
-      //        QuestionnaireResponse.Item(linkId = FhirR4String(value = "date-item")),
-      //        validationResult = NotValidated,
-      //        answersChangedCallback = { _, _, result, _ -> answers = result },
-      //      )
-      //      setContent { QuestionnaireDateView(item) }
-      //    onNodeWithTag(DATE_TEXT_INPUT_FIELD).performTextInput("2020/11/19")
-      //    waitUntil { answers != null }
-      //    val answer = (answers!!.single().value?.asDate()?.value?.value as? FhirDate.Date)?.date
-      //
-      //      answer?.day.shouldBe(19)
-      //      answer?.month.shouldBe(10)
-      //      answer?.year.shouldBe(2020)
-    }
 
   @Test
   fun parseDateTextInput() = runComposeUiTest {
@@ -950,30 +805,6 @@ class DateViewFactoryTest {
   }
 
   @Test
-  @Ignore
-  fun shouldSetLocalDateInputFormatWhenEntryFormatExtensionHasIncorrectFormatStringInQuestionnaire() =
-    runComposeUiTest {
-      //      setLocale(Locale.US)
-      //        val questionnaireViewItem = QuestionnaireViewItem(
-      //            Questionnaire.Item(
-      //                linkId = FhirR4String(value = "date-item"),
-      //                type = Enumeration(value = Questionnaire.QuestionnaireItemType.Date),
-      //                extension = listOf(
-      //                    Extension(url = EXTENSION_ENTRY_FORMAT_URL, value =
-      // Extension.Value.String(value = FhirR4String(value = "yMyd")))
-      //                )
-      //            ),
-      //            QuestionnaireResponse.Item(linkId = FhirR4String(value = "date-item")),
-      //            validationResult = NotValidated,
-      //            answersChangedCallback = { _, _, _, _ -> },
-      //        )
-      //
-      //        setContent { QuestionnaireDateView(questionnaireViewItem) }
-      //      onNodeWithTag(DATE_TEXT_INPUT_FIELD)
-      //        .assertTextEquals("mm/dd/yyyy", includeEditableText = false)
-    }
-
-  @Test
   fun shouldUseDateFormatInTheEntryFormatExtensionThoughDateSeparatorIsMissing() =
     runComposeUiTest {
       val questionnaireViewItem =
@@ -1021,50 +852,6 @@ class DateViewFactoryTest {
     setContent { QuestionnaireDateView(questionnaireViewItem) }
     onNodeWithTag(DATE_TEXT_INPUT_FIELD).assertTextEquals("yyyy mm dd", includeEditableText = false)
   }
-
-  @Test
-  @Ignore
-  fun shouldSetLocalDateInputFormatWhenEntryFormatExtensionHasEmptyStringInQuestionnaire() =
-    runComposeUiTest {
-      //      setLocale(Locale.US)
-      //        val questionnaireViewItem = QuestionnaireViewItem(
-      //            Questionnaire.Item(
-      //                linkId = FhirR4String(value = "date-item"),
-      //                type = Enumeration(value = Questionnaire.QuestionnaireItemType.Date),
-      //                extension = listOf(
-      //                    Extension(url = EXTENSION_ENTRY_FORMAT_URL, value =
-      // Extension.Value.String(value = FhirR4String(value = "")))
-      //                )
-      //            ),
-      //            QuestionnaireResponse.Item(linkId = FhirR4String(value = "date-item")),
-      //            validationResult = NotValidated,
-      //            answersChangedCallback = { _, _, _, _ -> },
-      //        )
-      //
-      //        setContent { QuestionnaireDateView(questionnaireViewItem) }
-      //      onNodeWithTag(DATE_TEXT_INPUT_FIELD)
-      //        .assertTextEquals("mm/dd/yyyy", includeEditableText = false)
-    }
-
-  @Test
-  @Ignore
-  fun shouldSetLocalDateInputFormatWhenNoEntryFormatExtensionInQuestionnaire() =
-    runComposeUiTest {
-      //    setLocale(Locale.US)
-      //      val questionnaireViewItem = QuestionnaireViewItem(
-      //          Questionnaire.Item(
-      //              linkId = FhirR4String(value = "date-item"),
-      //              type = Enumeration(value = Questionnaire.QuestionnaireItemType.Date),
-      //          ),
-      //          QuestionnaireResponse.Item(linkId = FhirR4String(value = "date-item")),
-      //          validationResult = NotValidated,
-      //          answersChangedCallback = { _, _, _, _ -> },
-      //      )
-      //
-      //      setContent { QuestionnaireDateView(questionnaireViewItem) }
-      //    onNodeWithTag(DATE_TEXT_INPUT_FIELD)
-      //      .assertTextEquals("mm/dd/yyyy", includeEditableText = false)
-    }
 
   @Test
   fun clearUiTextClearsQuestionnaireResponseAnswerAndDraftAnswer() = runComposeUiTest {
@@ -1232,8 +1019,21 @@ class DateViewFactoryTest {
     onNodeWithText("Optional").assertDoesNotExist()
   }
 
-  //  private fun setLocale(locale: Locale) {
-  //    Locale.setDefault(locale)
-  //    parent.context.resources.configuration.setLocale(locale)
-  //  }
+  @Test
+  fun datePicker_shouldSaveInQuestionnaireResponseWhenCorrectDateWithEntryFormatIsEntered() =
+    runComposeUiTest {
+      val getQuestionnaireResponse = setQuestionnaireContent("files/component_date_picker.json")
+
+      onNodeWithTag(DATE_TEXT_INPUT_FIELD).performTextInput("20050105")
+      mainClock.advanceTimeBy(HANDLE_INPUT_DEBOUNCE_TIME + 500L)
+      onNodeWithTag(DATE_TEXT_INPUT_FIELD)
+        .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+
+      (getQuestionnaireResponse().item.first().answer.first().value?.asDate()?.value?.value
+          as? FhirDate.Date)
+        ?.date
+        .shouldBe(
+          LocalDate(2005, 1, 5),
+        )
+    }
 }

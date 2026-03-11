@@ -49,9 +49,14 @@ kotlin {
 
   iosSimulatorArm64 { binaries.framework { baseName = xcfName } }
 
-  wasmJs {
-    browser()
-    binaries.library()
+  // A project property to skip wasmJs build, when in CI
+  val skipWasmJs = project.findProperty("skipWasmJs")?.toString()?.toBoolean() ?: false
+
+  if (!skipWasmJs) {
+    wasmJs {
+      browser()
+      binaries.library()
+    }
   }
 
   jvm("desktop")

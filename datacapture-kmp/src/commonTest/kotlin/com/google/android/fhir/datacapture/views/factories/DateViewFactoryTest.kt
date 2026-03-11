@@ -41,7 +41,6 @@ import com.google.android.fhir.datacapture.extensions.FhirR4Boolean
 import com.google.android.fhir.datacapture.extensions.FhirR4DateType
 import com.google.android.fhir.datacapture.extensions.FhirR4String
 import com.google.android.fhir.datacapture.extensions.toAnnotatedString
-import com.google.android.fhir.datacapture.setQuestionnaireContent
 import com.google.android.fhir.datacapture.theme.QuestionnaireTheme
 import com.google.android.fhir.datacapture.validation.Invalid
 import com.google.android.fhir.datacapture.validation.NotValidated
@@ -49,7 +48,6 @@ import com.google.android.fhir.datacapture.views.QuestionTextConfiguration
 import com.google.android.fhir.datacapture.views.QuestionnaireViewItem
 import com.google.android.fhir.datacapture.views.components.DATE_TEXT_INPUT_FIELD
 import com.google.android.fhir.datacapture.views.components.ERROR_TEXT_AT_HEADER_TEST_TAG
-import com.google.android.fhir.datacapture.views.components.HANDLE_INPUT_DEBOUNCE_TIME
 import com.google.android.fhir.datacapture.views.components.QUESTION_HEADER_TAG
 import com.google.fhir.model.r4.Enumeration
 import com.google.fhir.model.r4.Extension
@@ -1018,22 +1016,4 @@ class DateViewFactoryTest {
     setContent { QuestionnaireDateView(questionnaireViewItem) }
     onNodeWithText("Optional").assertDoesNotExist()
   }
-
-  @Test
-  fun datePicker_shouldSaveInQuestionnaireResponseWhenCorrectDateWithEntryFormatIsEntered() =
-    runComposeUiTest {
-      val getQuestionnaireResponse = setQuestionnaireContent("files/component_date_picker.json")
-
-      onNodeWithTag(DATE_TEXT_INPUT_FIELD).performTextInput("20050105")
-      mainClock.advanceTimeBy(HANDLE_INPUT_DEBOUNCE_TIME + 500L)
-      onNodeWithTag(DATE_TEXT_INPUT_FIELD)
-        .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
-
-      (getQuestionnaireResponse().item.first().answer.first().value?.asDate()?.value?.value
-          as? FhirDate.Date)
-        ?.date
-        .shouldBe(
-          LocalDate(2005, 1, 5),
-        )
-    }
 }

@@ -40,6 +40,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.AnnotatedString
@@ -59,6 +60,7 @@ import com.google.android.fhir.datacapture.views.components.TIME_PICKER_INPUT_FI
 import com.google.fhir.model.r4.DateTime
 import com.google.fhir.model.r4.Enumeration
 import com.google.fhir.model.r4.Extension
+import com.google.fhir.model.r4.FhirDate
 import com.google.fhir.model.r4.FhirDateTime
 import com.google.fhir.model.r4.Questionnaire
 import com.google.fhir.model.r4.QuestionnaireResponse
@@ -75,6 +77,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.number
@@ -1290,4 +1293,22 @@ class DateTimeViewFactoryTest {
         LocalDateTime(2005, 1, 5, 6, 10),
       )
   }
+
+  @Test
+  fun datePicker_shouldSaveInQuestionnaireResponseWhenCorrectDateWithEntryFormatIsEntered() =
+    runComposeUiTest {
+      val getQuestionnaireResponse = setQuestionnaireContent("files/component_date_picker.json")
+
+      onNodeWithTag(DATE_TEXT_INPUT_FIELD).performTextInput("20050105")
+      mainClock.advanceTimeBy(HANDLE_INPUT_DEBOUNCE_TIME + 500L)
+      onNodeWithTag(DATE_TEXT_INPUT_FIELD)
+        .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+
+      (getQuestionnaireResponse().item.first().answer.first().value?.asDate()?.value?.value
+          as? FhirDate.Date)
+        ?.date
+        .shouldBe(
+          LocalDate(2005, 1, 5),
+        )
+    }
 }

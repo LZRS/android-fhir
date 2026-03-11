@@ -42,23 +42,30 @@ android {
   }
 }
 
+val isCI = providers.environmentVariable("CI").isPresent
+
 kotlin {
   androidTarget { compilerOptions { jvmTarget.set(JvmTarget.JVM_11) } }
 
   jvm("desktop")
 
-  @OptIn(ExperimentalWasmDsl::class)
-  wasmJs {
-    browser {
-      val rootProjectDir = rootProject.projectDir.path
-      commonWebpackConfig {
-        devServer =
-          (devServer ?: KotlinWebpackConfig.DevServer()).copy(
-            static = (devServer?.static ?: mutableListOf()).apply { add(rootProjectDir) },
-          )
+  // A project property to skip wasmJs build, when in CI
+  val skipWasmJs = project.findProperty("skipWasmJs")?.toString()?.toBoolean() ?: false
+
+  if (!skipWasmJs) {
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+      browser {
+        val rootProjectDir = rootProject.projectDir.path
+        commonWebpackConfig {
+          devServer =
+            (devServer ?: KotlinWebpackConfig.DevServer()).copy(
+              static = (devServer?.static ?: mutableListOf()).apply { add(rootProjectDir) },
+            )
+        }
       }
+      binaries.executable()
     }
-    binaries.executable()
   }
 
   listOf(

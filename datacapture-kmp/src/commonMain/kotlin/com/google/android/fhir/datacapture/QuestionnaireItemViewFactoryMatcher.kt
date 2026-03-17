@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Google LLC
+ * Copyright 2025-2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import com.google.fhir.model.r4.Questionnaire
  * [developer guide](https://github.com/google/android-fhir/wiki/SDCL:-Customize-how-a-Questionnaire-is-displayed#custom-questionnaire-components)
  * for more information.
  */
-data class QuestionnaireItemViewHolderFactoryMatcher(
+data class QuestionnaireItemViewFactoryMatcher(
   /** The custom [QuestionnaireItemViewFactory] to use. */
   val factory: QuestionnaireItemViewFactory,
   /**

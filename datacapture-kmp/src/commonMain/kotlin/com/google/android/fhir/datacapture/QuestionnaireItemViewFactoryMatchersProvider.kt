@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Google LLC
+ * Copyright 2025-2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,28 +17,27 @@
 package com.google.android.fhir.datacapture
 
 /**
- * Provides the [QuestionnaireItemViewHolderFactoryMatcher]s which are used to evaluate whether a
- * custom [com.google.android.fhir.datacapture.views.factories.QuestionnaireItemViewHolderFactory]
- * should be used to render a given questionnaire item.
+ * Provides the [QuestionnaireItemViewFactoryMatcher]s which are used to evaluate whether a custom
+ * [com.google.android.fhir.datacapture.views.factories.QuestionnaireItemViewFactory] should be used
+ * to render a given questionnaire item.
  *
  * **NOTE**:
  *
  * User-provided custom views take precedence over canonical views provided by the library. If
- * multiple [QuestionnaireItemViewHolderFactoryMatcher] are applicable for the same item, the
- * behavior is undefined (any of them may be selected).
+ * multiple [QuestionnaireItemViewFactoryMatcher] are applicable for the same item, the behavior is
+ * undefined (any of them may be selected).
  *
  * See the
  * [developer guide](https://github.com/google/android-fhir/wiki/SDCL:-Customize-how-a-Questionnaire-is-displayed#custom-questionnaire-components)
  * for more information.
  */
-abstract class QuestionnaireItemViewHolderFactoryMatchersProvider {
+interface QuestionnaireItemViewFactoryMatchersProvider {
   /**
    * Implementation should specify when custom questionnaire components should be used.
    *
-   * @return A [List] of [QuestionnaireItemViewHolderFactoryMatcher]s which are used to evaluate
-   *   whether a custom
-   *   [com.google.android.fhir.datacapture.views.factories.QuestionnaireItemViewHolderFactory]
+   * @return A [List] of [QuestionnaireItemViewFactoryMatcher]s which are used to evaluate whether a
+   *   custom [com.google.android.fhir.datacapture.views.factories.QuestionnaireItemViewFactory]
    *   should be used to render a given questionnaire item.
    */
-  abstract fun get(): List<QuestionnaireItemViewHolderFactoryMatcher>
+  fun get(): List<QuestionnaireItemViewFactoryMatcher>
 }

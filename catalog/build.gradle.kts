@@ -102,6 +102,7 @@ kotlin {
       implementation(libs.kotlinx.coroutines.core)
       implementation(libs.navigation.compose)
       implementation(project(":datacapture-kmp"))
+      implementation(project(":contrib:barcode-kmp"))
     }
 
     val desktopMain by getting { dependencies { implementation(compose.desktop.currentOs) } }

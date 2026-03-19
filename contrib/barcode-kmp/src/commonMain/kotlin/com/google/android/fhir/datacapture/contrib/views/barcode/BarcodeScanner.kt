@@ -27,3 +27,5 @@ expect class BarcodeScanner {
 }
 
 @Composable expect fun getBarcodeScanner(): BarcodeScanner
+
+@Composable expect fun ScannerView(onSuccess: (String?) -> Unit)

@@ -15,6 +15,8 @@ plugins {
 kotlin {
   jvmToolchain(21)
 
+  applyDefaultHierarchyTemplate()
+
   androidLibrary {
     namespace = "com.google.android.fhir.datacapture.contrib.views.barcode"
     compileSdk = Sdk.COMPILE_SDK
@@ -64,7 +66,7 @@ kotlin {
       }
     }
 
-    commonMain {
+    val commonMain by getting {
       dependencies {
         implementation(compose.components.resources)
         implementation(compose.components.uiToolingPreview)
@@ -86,20 +88,16 @@ kotlin {
       }
     }
 
+    val mobileMain by creating {
+      dependsOn(commonMain)
+      dependencies { implementation(libs.kscan) }
+    }
+
+    @Suppress("unused") val iosMain by getting { dependsOn(mobileMain) }
+
     androidMain {
+      dependsOn(mobileMain)
       resources.srcDir("res")
-      dependencies {
-        implementation(libs.mlkit.barcode.scanning)
-        implementation(libs.androidx.appcompat)
-        implementation(libs.androidx.core)
-        implementation(libs.androidx.fragment)
-        implementation(libs.material)
-        implementation(libs.androidx.lifecycle.viewmodel)
-        implementation(libs.mlkit.barcode.scanning)
-        implementation(libs.mlkit.obj.detection)
-        implementation(libs.mlkit.obj.detection.custom)
-        implementation(libs.timber)
-      }
     }
 
     getByName("androidDeviceTest") {
@@ -125,6 +123,7 @@ kotlin {
       }
     }
 
+    @Suppress("unused")
     val desktopMain by getting {
       dependencies {
         implementation(compose.desktop.currentOs)

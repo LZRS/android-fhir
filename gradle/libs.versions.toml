@@ -60,6 +60,7 @@ kotlinx-coroutines = "1.10.2"
 kotlinx-serialization-json = "1.9.0"
 kotlinx-coroutines-swing = "1.10.2"
 kotlinx-io-core = "0.8.0"
+kscan = "0.7.1"
 licensee-gradle-plugin = "1.8.0"
 logback-android = "3.0.0"
 material = "1.13.0"
@@ -173,6 +174,7 @@ kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io-core" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
+kscan = { module = "io.github.ismai117:KScan", version.ref = "kscan" }
 licensee-gradle-plugin = { module = "app.cash.licensee:licensee-gradle-plugin", version.ref = "licensee-gradle-plugin" }
 logback-android = { module = "com.github.tony19:logback-android", version.ref = "logback-android" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }

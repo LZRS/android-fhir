@@ -15,8 +15,6 @@ plugins {
 kotlin {
   jvmToolchain(21)
 
-  applyDefaultHierarchyTemplate()
-
   androidLibrary {
     namespace = "com.google.android.fhir.datacapture.contrib.views.barcode"
     compileSdk = Sdk.COMPILE_SDK
@@ -66,7 +64,7 @@ kotlin {
       }
     }
 
-    val commonMain by getting {
+    commonMain {
       dependencies {
         implementation(compose.components.resources)
         implementation(compose.components.uiToolingPreview)
@@ -77,6 +75,7 @@ kotlin {
         implementation(project(":datacapture-kmp"))
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlin.fhir)
+        implementation(libs.kscan)
       }
     }
 
@@ -88,17 +87,7 @@ kotlin {
       }
     }
 
-    val mobileMain by creating {
-      dependsOn(commonMain)
-      dependencies { implementation(libs.kscan) }
-    }
-
-    @Suppress("unused") val iosMain by getting { dependsOn(mobileMain) }
-
-    androidMain {
-      dependsOn(mobileMain)
-      resources.srcDir("res")
-    }
+    androidMain { resources.srcDir("res") }
 
     getByName("androidDeviceTest") {
       dependencies {
@@ -124,11 +113,6 @@ kotlin {
     }
 
     @Suppress("unused")
-    val desktopMain by getting {
-      dependencies {
-        implementation(compose.desktop.currentOs)
-        implementation(libs.zxing)
-      }
-    }
+    val desktopMain by getting { dependencies { implementation(compose.desktop.currentOs) } }
   }
 }

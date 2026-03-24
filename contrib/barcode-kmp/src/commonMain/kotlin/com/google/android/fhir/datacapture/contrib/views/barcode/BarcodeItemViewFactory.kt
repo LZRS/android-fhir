@@ -22,6 +22,7 @@ import android_fhir.contrib.barcode_kmp.generated.resources.rescan
 import android_fhir.contrib.barcode_kmp.generated.resources.scan_barcode
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -56,12 +57,14 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.ncgroup.kscan.BarcodeFormat
+import org.ncgroup.kscan.BarcodeResult
+import org.ncgroup.kscan.ScannerView
 
 internal object BarcodeItemViewFactory : QuestionnaireItemViewFactory {
 
   @Composable
   override fun Content(questionnaireViewItem: QuestionnaireViewItem) {
-    val scanner = getBarcodeScanner()
     val coroutineScope = rememberCoroutineScope { Dispatchers.Main }
     val scanBarcodeText = stringResource(Res.string.scan_barcode)
 
@@ -75,61 +78,88 @@ internal object BarcodeItemViewFactory : QuestionnaireItemViewFactory {
       }
     val showRescanBarcode = remember(scannedAnswer) { !scannedAnswer.isNullOrBlank() }
 
+    var showScanner by remember { mutableStateOf(false) }
     var scanInProgress by remember { mutableStateOf(false) }
 
-    Column(
-      modifier =
-        Modifier.fillMaxWidth()
-          .padding(
-            horizontal = QuestionnaireTheme.dimensions.itemMarginHorizontal,
-            vertical = QuestionnaireTheme.dimensions.itemMarginVertical,
-          ),
-    ) {
-      Header(questionnaireViewItem)
-
-      Row(
+    Box {
+      Column(
         modifier =
-          Modifier.clickable(enabled = !scanInProgress) {
-            scanInProgress = true
-            coroutineScope.launch {
-              val result = scanner.scanBarcode()
-              scanInProgress = false
+          Modifier.fillMaxWidth()
+            .padding(
+              horizontal = QuestionnaireTheme.dimensions.itemMarginHorizontal,
+              vertical = QuestionnaireTheme.dimensions.itemMarginVertical,
+            ),
+      ) {
+        Header(questionnaireViewItem)
 
-              if (result.isNullOrBlank()) {
-                questionnaireViewItem.clearAnswer()
-              } else {
-                questionnaireViewItem.setAnswer(
-                  QuestionnaireResponse.Item.Answer(
-                    value =
-                      QuestionnaireResponse.Item.Answer.Value.String(
-                        value = String(value = result),
-                      ),
-                  ),
-                )
+        Row(
+          modifier =
+            Modifier.clickable(enabled = !scanInProgress) {
+              showScanner = true
+
+              //              scanInProgress = true
+            },
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+          Icon(
+            painter = painterResource(Res.drawable.ic_barcode),
+            contentDescription = "Barcode icon",
+            modifier = Modifier.size(24.dp),
+          )
+          Text(
+            barcodeText,
+            fontSize = 21.sp,
+            fontWeight = if (showRescanBarcode) FontWeight.Normal else FontWeight.Bold,
+            modifier = Modifier.weight(1f),
+          )
+          if (showRescanBarcode) {
+            Text(
+              stringResource(Res.string.rescan),
+              fontSize = 21.sp,
+              fontWeight = FontWeight.Bold,
+              color = Color(0x00, 0x6C, 0xBB),
+            )
+          }
+        }
+      }
+
+      if (showScanner) {
+        ScannerView(
+          codeTypes =
+            listOf(
+              BarcodeFormat.FORMAT_ALL_FORMATS,
+            ),
+        ) { result ->
+          coroutineScope.launch {
+            when (result) {
+              is BarcodeResult.OnSuccess -> {
+                val barcode = result.barcode.data
+                //                val format = result.barcode.format
+                showScanner = false
+
+                if (barcode.isBlank()) {
+                  questionnaireViewItem.clearAnswer()
+                } else {
+                  questionnaireViewItem.setAnswer(
+                    QuestionnaireResponse.Item.Answer(
+                      value =
+                        QuestionnaireResponse.Item.Answer.Value.String(
+                          value = String(value = barcode),
+                        ),
+                    ),
+                  )
+                }
+              }
+              is BarcodeResult.OnFailed -> {
+                result.exception.printStackTrace()
+                showScanner = false
+              }
+              BarcodeResult.OnCanceled -> {
+                showScanner = false
               }
             }
-          },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-      ) {
-        Icon(
-          painter = painterResource(Res.drawable.ic_barcode),
-          contentDescription = "Barcode icon",
-          modifier = Modifier.size(24.dp),
-        )
-        Text(
-          barcodeText,
-          fontSize = 21.sp,
-          fontWeight = if (showRescanBarcode) FontWeight.Normal else FontWeight.Bold,
-          modifier = Modifier.weight(1f),
-        )
-        if (showRescanBarcode) {
-          Text(
-            stringResource(Res.string.rescan),
-            fontSize = 21.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0x00, 0x6C, 0xBB),
-          )
+          }
         }
       }
     }

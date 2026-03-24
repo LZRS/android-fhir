@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2025 Google LLC
+ * Copyright 2023-2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ object Releases {
   }
 
   object Catalog {
-    const val applicationId = "com.google.android.fhir.catalog"
+    const val applicationId = "com.google.android.fhir.catalog.kmp.test"
     const val versionCode = 1
     const val versionName = "1.0"
   }

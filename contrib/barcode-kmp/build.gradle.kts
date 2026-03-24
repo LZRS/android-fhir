@@ -87,7 +87,20 @@ kotlin {
       }
     }
 
-    androidMain { resources.srcDir("res") }
+    androidMain {
+      resources.srcDir("res")
+      dependencies {
+        implementation(libs.moko.permissions.camera)
+        implementation(libs.moko.permissions.compose)
+      }
+    }
+
+    iosMain {
+      dependencies {
+        implementation(libs.moko.permissions.camera)
+        implementation(libs.moko.permissions.compose)
+      }
+    }
 
     getByName("androidDeviceTest") {
       dependencies {

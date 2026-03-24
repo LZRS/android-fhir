@@ -25,10 +25,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,6 +44,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.google.android.fhir.datacapture.QuestionnaireItemViewFactoryMatcher
 import com.google.android.fhir.datacapture.theme.QuestionnaireTheme
 import com.google.android.fhir.datacapture.validation.Valid
@@ -65,6 +69,7 @@ internal object BarcodeItemViewFactory : QuestionnaireItemViewFactory {
 
   @Composable
   override fun Content(questionnaireViewItem: QuestionnaireViewItem) {
+    val cameraPermissionProvider = rememberCameraPermissionProvider()
     val coroutineScope = rememberCoroutineScope { Dispatchers.Main }
     val scanBarcodeText = stringResource(Res.string.scan_barcode)
 
@@ -79,7 +84,6 @@ internal object BarcodeItemViewFactory : QuestionnaireItemViewFactory {
     val showRescanBarcode = remember(scannedAnswer) { !scannedAnswer.isNullOrBlank() }
 
     var showScanner by remember { mutableStateOf(false) }
-    var scanInProgress by remember { mutableStateOf(false) }
 
     Box {
       Column(
@@ -94,10 +98,15 @@ internal object BarcodeItemViewFactory : QuestionnaireItemViewFactory {
 
         Row(
           modifier =
-            Modifier.clickable(enabled = !scanInProgress) {
-              showScanner = true
-
-              //              scanInProgress = true
+            Modifier.clickable {
+              coroutineScope.launch {
+                try {
+                  cameraPermissionProvider.providePermission()
+                  showScanner = true
+                } catch (_: Exception) {
+                  // Permission request either failed or was denied.
+                }
+              }
             },
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -125,19 +134,14 @@ internal object BarcodeItemViewFactory : QuestionnaireItemViewFactory {
       }
 
       if (showScanner) {
-        ScannerView(
-          codeTypes =
-            listOf(
-              BarcodeFormat.FORMAT_ALL_FORMATS,
-            ),
+        ScannerViewDialog(
+          onDismiss = { showScanner = false },
         ) { result ->
           coroutineScope.launch {
             when (result) {
               is BarcodeResult.OnSuccess -> {
                 val barcode = result.barcode.data
                 //                val format = result.barcode.format
-                showScanner = false
-
                 if (barcode.isBlank()) {
                   questionnaireViewItem.clearAnswer()
                 } else {
@@ -153,13 +157,33 @@ internal object BarcodeItemViewFactory : QuestionnaireItemViewFactory {
               }
               is BarcodeResult.OnFailed -> {
                 result.exception.printStackTrace()
-                showScanner = false
               }
-              BarcodeResult.OnCanceled -> {
-                showScanner = false
-              }
+              is BarcodeResult.OnCanceled -> {}
             }
           }
+        }
+      }
+    }
+  }
+
+  @Composable
+  fun ScannerViewDialog(onDismiss: () -> Unit, onBarcodeResult: (BarcodeResult) -> Unit) {
+    Dialog(
+      onDismissRequest = onDismiss,
+      properties =
+        DialogProperties(
+          usePlatformDefaultWidth = false,
+        ),
+    ) {
+      Surface(modifier = Modifier.fillMaxSize()) {
+        ScannerView(
+          codeTypes =
+            listOf(
+              BarcodeFormat.FORMAT_ALL_FORMATS,
+            ),
+        ) { result ->
+          onBarcodeResult(result)
+          onDismiss()
         }
       }
     }

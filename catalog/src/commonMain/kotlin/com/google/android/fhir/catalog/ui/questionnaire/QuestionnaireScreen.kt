@@ -61,6 +61,8 @@ import com.google.android.fhir.datacapture.Questionnaire
 import com.google.android.fhir.datacapture.QuestionnaireItemViewFactoryMatcher
 import com.google.android.fhir.datacapture.QuestionnaireItemViewFactoryMatchersProvider
 import com.google.android.fhir.datacapture.contrib.views.barcode.BarcodeItemViewFactoryMatcher
+import com.google.android.fhir.datacapture.contrib.views.locationwidget.LocationDataItemViewFactoryMatcher
+import com.google.android.fhir.datacapture.contrib.views.locationwidget.LocationItemViewFactoryMatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -83,7 +85,11 @@ fun QuestionnaireScreen(
   val viewItemMatchersProvider = remember {
     object : QuestionnaireItemViewFactoryMatchersProvider {
       override fun get(): List<QuestionnaireItemViewFactoryMatcher> {
-        return listOf(BarcodeItemViewFactoryMatcher)
+        return listOf(
+          BarcodeItemViewFactoryMatcher,
+          LocationItemViewFactoryMatcher,
+          LocationDataItemViewFactoryMatcher,
+        )
       }
     }
   }

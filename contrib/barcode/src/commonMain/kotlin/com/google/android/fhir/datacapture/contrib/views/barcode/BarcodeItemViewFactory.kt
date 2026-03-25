@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.google.android.fhir.datacapture.QuestionnaireItemViewFactoryMatcher
+import com.google.android.fhir.datacapture.extensions.itemControlCode
 import com.google.android.fhir.datacapture.theme.QuestionnaireTheme
 import com.google.android.fhir.datacapture.validation.Valid
 import com.google.android.fhir.datacapture.views.QuestionnaireViewItem
@@ -211,15 +212,4 @@ internal object BarcodeItemViewFactory : QuestionnaireItemViewFactory {
 }
 
 val BarcodeItemViewFactoryMatcher =
-  QuestionnaireItemViewFactoryMatcher(BarcodeItemViewFactory) {
-    it.extension.any { ext ->
-      ext.url ==
-        "https://github.com/google/android-fhir/StructureDefinition/questionnaire-itemControl" &&
-        ext.value?.asCodeableConcept()?.value?.coding?.any { coding ->
-          coding.system
-            ?.value
-            ?.equals("https://github.com/google/android-fhir/questionnaire-item-control") == true &&
-            coding.code?.value?.equals("barcode") == true
-        } == true
-    }
-  }
+  QuestionnaireItemViewFactoryMatcher(BarcodeItemViewFactory) { it.itemControlCode == "barcode" }

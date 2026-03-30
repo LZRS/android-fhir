@@ -243,4 +243,5 @@ private val nonStandardLicenseUrls =
     "https://github.com/hypfvieh/dbus-java/blob/master/LICENSE",
     "https://developers.google.com/ml-kit/terms",
     "https://github.com/icerockdev/moko-permissions/blob/master/LICENSE.md",
+    "https://github.com/jordond/compass/blob/master/LICENSE",
   )

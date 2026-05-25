@@ -122,7 +122,7 @@ sealed class SyncJobStatus {
     private val serializer =
       GsonBuilder()
         .registerTypeAdapter(OffsetDateTime::class.java, OffsetDateTimeTypeAdapter().nullSafe())
-        .setExclusionStrategies(FhirSyncWorker.StateExclusionStrategy())
+        .setExclusionStrategies(StateExclusionStrategy())
         .create()
 
     private val allowedSyncJobStatusPackages =

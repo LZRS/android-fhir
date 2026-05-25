@@ -28,6 +28,7 @@ import com.google.android.fhir.index.ResourceIndexer
 import com.google.android.fhir.index.SearchParamDefinitionsProvider
 import com.google.android.fhir.index.SearchParamDefinitionsProviderImpl
 import com.google.android.fhir.sync.DataSource
+import com.google.android.fhir.sync.AndroidFhirDataStore
 import com.google.android.fhir.sync.FhirDataStore
 import com.google.android.fhir.sync.remote.FhirHttpDataSource
 import com.google.android.fhir.sync.remote.RetrofitHttpService
@@ -97,7 +98,7 @@ internal data class FhirServices(
         fhirEngine = engine,
         database = db,
         remoteDataSource = remoteDataSource,
-        fhirDataStore = FhirDataStore(context),
+        fhirDataStore = AndroidFhirDataStore(context),
         searchParamProvider = provider,
       )
     }

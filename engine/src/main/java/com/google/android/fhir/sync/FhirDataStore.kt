@@ -33,12 +33,37 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 
+/**
+ * Contract for persisting sync state across sessions.
+ *
+ * Keeping this as an interface (rather than a concrete class) allows [FhirSyncCore] and
+ * [FhirSynchronizer] to depend on a platform-neutral contract. The Android-specific implementation
+ * backed by Jetpack DataStore is [AndroidFhirDataStore].
+ *
+ * When the codebase migrates to KMP, this interface (and all types it references) moves to
+ * `commonMain`, while [AndroidFhirDataStore] stays in `androidMain`.
+ */
 @PublishedApi
-internal class FhirDataStore(context: Context) {
-  private val Context.dataStore by
-    preferencesDataStore(
-      name = FHIR_PREFERENCES_NAME,
-    )
+internal interface FhirDataStore {
+
+  fun observeTerminalSyncJobStatus(key: String): Flow<SyncJobStatus?>
+
+  suspend fun writeTerminalSyncJobStatus(key: String, syncJobStatus: SyncJobStatus)
+
+  fun readLastSyncTimestamp(): OffsetDateTime?
+
+  fun writeLastSyncTimestamp(datetime: OffsetDateTime)
+
+  suspend fun storeUniqueWorkName(key: String, value: String)
+
+  suspend fun removeUniqueWorkName(key: String)
+
+  suspend fun fetchUniqueWorkName(key: String): String?
+}
+
+/** Android implementation of [FhirDataStore] backed by Jetpack DataStore preferences. */
+internal class AndroidFhirDataStore(context: Context) : FhirDataStore {
+  private val Context.dataStore by preferencesDataStore(name = FHIR_PREFERENCES_NAME)
   private val dataStore = context.dataStore
   private val serializer = SyncJobStatus.SyncJobStatusSerializer()
   private val syncJobStatusFlowMap = mutableMapOf<String, Flow<SyncJobStatus?>>()
@@ -51,8 +76,7 @@ internal class FhirDataStore(context: Context) {
    * @return A Flow of [SyncJobStatus] representing the terminal state of the sync job, or null if
    *   the state is not allowed.
    */
-  @PublishedApi
-  internal fun observeTerminalSyncJobStatus(key: String): Flow<SyncJobStatus?> =
+  override fun observeTerminalSyncJobStatus(key: String): Flow<SyncJobStatus?> =
     syncJobStatusFlowMap.getOrPut(key) {
       dataStore.data
         .catch { exception ->
@@ -75,7 +99,7 @@ internal class FhirDataStore(context: Context) {
    * @param syncJobStatus The synchronization job status to be stored.
    * @param key The key associated with the data to edit.
    */
-  internal suspend fun writeTerminalSyncJobStatus(
+  override suspend fun writeTerminalSyncJobStatus(
     key: String,
     syncJobStatus: SyncJobStatus,
   ) {
@@ -94,32 +118,29 @@ internal class FhirDataStore(context: Context) {
     }
   }
 
-  internal fun readLastSyncTimestamp(): OffsetDateTime? {
+  override fun readLastSyncTimestamp(): OffsetDateTime? {
     val millis = runBlocking { dataStore.data.first()[lastSyncTimestampKey] } ?: return null
     return OffsetDateTime.parse(millis)
   }
 
-  internal fun writeLastSyncTimestamp(datetime: OffsetDateTime) {
+  override fun writeLastSyncTimestamp(datetime: OffsetDateTime) {
     runBlocking { dataStore.edit { pref -> pref[lastSyncTimestampKey] = datetime.toString() } }
   }
 
   private val mutexMap = ConcurrentHashMap<String, Mutex>()
 
   private fun getOrCreateMutex(key: String): Mutex {
-    // computeIfAbsent is thread-safe and only creates a Mutex if one doesn't exist.
     return mutexMap.computeIfAbsent(key) { Mutex() }
   }
 
   /** Stores the given unique-work-name in DataStore. */
-  @PublishedApi
-  internal suspend fun storeUniqueWorkName(key: String, value: String) {
+  override suspend fun storeUniqueWorkName(key: String, value: String) {
     getOrCreateMutex(key).withLock {
       dataStore.edit { preferences -> preferences[stringPreferencesKey("$key-key")] = value }
     }
   }
 
-  @PublishedApi
-  internal suspend fun removeUniqueWorkName(key: String) {
+  override suspend fun removeUniqueWorkName(key: String) {
     getOrCreateMutex(key).withLock {
       dataStore.edit { preferences ->
         val value = preferences.remove(stringPreferencesKey("$key-key"))
@@ -129,15 +150,14 @@ internal class FhirDataStore(context: Context) {
   }
 
   /** Fetches the stored unique-work-name from DataStore. */
-  @PublishedApi
-  internal suspend fun fetchUniqueWorkName(key: String): String? {
+  override suspend fun fetchUniqueWorkName(key: String): String? {
     return getOrCreateMutex(key).withLock {
       val preferences = dataStore.data.first()
       preferences[stringPreferencesKey("$key-key")]
     }
   }
 
-  companion object {
+  private companion object {
     private const val FHIR_PREFERENCES_NAME = "FHIR_ENGINE_PREF_DATASTORE"
     private const val LAST_SYNC_TIMESTAMP = "LAST_SYNC_TIMESTAMP"
   }

@@ -25,20 +25,12 @@ import ca.uhn.fhir.context.FhirContext
 import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.FhirEngineProvider
 import com.google.android.fhir.OffsetDateTimeTypeAdapter
-import com.google.android.fhir.sync.download.DownloaderImpl
 import com.google.android.fhir.sync.upload.UploadStrategy
-import com.google.android.fhir.sync.upload.Uploader
-import com.google.android.fhir.sync.upload.patch.PatchGeneratorFactory
-import com.google.android.fhir.sync.upload.request.UploadRequestGeneratorFactory
 import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
 import com.google.gson.GsonBuilder
 import java.nio.charset.StandardCharsets
 import java.time.OffsetDateTime
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import org.apache.commons.io.IOUtils
 import org.hl7.fhir.r4.model.OperationOutcome
 import retrofit2.HttpException
@@ -92,57 +84,23 @@ abstract class FhirSyncWorker(appContext: Context, workerParams: WorkerParameter
           ),
         )
 
-    val synchronizer =
-      FhirSynchronizer(
-        getFhirEngine(),
-        UploadConfiguration(
-          uploader =
-            Uploader(
-              dataSource = dataSource,
-              patchGenerator = PatchGeneratorFactory.byMode(getUploadStrategy().patchGeneratorMode),
-              requestGenerator =
-                UploadRequestGeneratorFactory.byMode(getUploadStrategy().requestGeneratorMode),
-            ),
+    val result =
+      FhirSyncCore(
+          fhirEngine = getFhirEngine(),
+          dataSource = dataSource,
+          downloadWorkManager = getDownloadWorkManager(),
+          conflictResolver = getConflictResolver(),
           uploadStrategy = getUploadStrategy(),
-        ),
-        DownloadConfiguration(
-          DownloaderImpl(dataSource, getDownloadWorkManager()),
-          getConflictResolver(),
-        ),
-        FhirEngineProvider.getFhirDataStore(applicationContext),
-      )
+          fhirDataStore = FhirEngineProvider.getFhirDataStore(applicationContext),
+        )
+        .execute(
+          workerName = inputData.getString(UNIQUE_WORK_NAME),
+          onProgress = { setProgress(buildWorkData(it)) },
+        )
 
-    val job =
-      CoroutineScope(Dispatchers.IO).launch {
-        val fhirDataStore = FhirEngineProvider.getFhirDataStore(applicationContext)
-        synchronizer.syncState.collect { syncJobStatus ->
-          val uniqueWorkerName = inputData.getString(UNIQUE_WORK_NAME)
-          when (syncJobStatus) {
-            is SyncJobStatus.Succeeded,
-            is SyncJobStatus.Failed, -> {
-              // While creating periodicSync request if
-              // putString(SYNC_STATUS_PREFERENCES_DATASTORE_KEY, uniqueWorkName) is not present,
-              // then inputData.getString(SYNC_STATUS_PREFERENCES_DATASTORE_KEY) can be null.
-              if (uniqueWorkerName != null) {
-                fhirDataStore.writeTerminalSyncJobStatus(uniqueWorkerName, syncJobStatus)
-              }
-              cancel()
-            }
-            else -> {
-              setProgress(buildWorkData(syncJobStatus))
-            }
-          }
-        }
-      }
-
-    val result = synchronizer.synchronize()
     if (result is SyncJobStatus.Failed) onFailedSyncJobResult(result)
 
     val output = buildWorkData(result)
-
-    // await/join is needed to collect states completely
-    kotlin.runCatching { job.join() }.onFailure(Timber::w)
-
     Timber.d("Received result from worker $result and sending output $output")
 
     /**
@@ -198,17 +156,22 @@ abstract class FhirSyncWorker(appContext: Context, workerParams: WorkerParameter
     return workDataOf("error" to exception::class.java.name, "reason" to exception.message)
   }
 
-  /**
-   * Exclusion strategy for [Gson] that handles field exclusions for [SyncJobStatus] returned by
-   * FhirSynchronizer. It should skip serializing the exceptions to avoid exceeding WorkManager
-   * WorkData limit
-   *
-   * @see <a
-   *   href="https://github.com/google/android-fhir/issues/707">https://github.com/google/android-fhir/issues/707</a>
-   */
-  internal class StateExclusionStrategy : ExclusionStrategy {
-    override fun shouldSkipField(field: FieldAttributes) = field.name.equals("exceptions")
+}
 
-    override fun shouldSkipClass(clazz: Class<*>?) = false
-  }
+/**
+ * Exclusion strategy for [Gson] that handles field exclusions for [SyncJobStatus] returned by
+ * FhirSynchronizer. It should skip serializing the exceptions to avoid exceeding WorkManager
+ * WorkData limit.
+ *
+ * Kept at package level (not nested in [FhirSyncWorker]) so that [SyncJobStatus] can reference it
+ * without importing [FhirSyncWorker] — a requirement for the eventual KMP split where
+ * [SyncJobStatus] moves to `commonMain` and [FhirSyncWorker] stays in `androidMain`.
+ *
+ * @see <a
+ *   href="https://github.com/google/android-fhir/issues/707">https://github.com/google/android-fhir/issues/707</a>
+ */
+internal class StateExclusionStrategy : ExclusionStrategy {
+  override fun shouldSkipField(field: FieldAttributes) = field.name.equals("exceptions")
+
+  override fun shouldSkipClass(clazz: Class<*>?) = false
 }

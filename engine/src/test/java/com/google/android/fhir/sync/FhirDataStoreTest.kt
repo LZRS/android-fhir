@@ -29,7 +29,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class FhirDataStoreTest {
-  private val fhirDataStore = FhirDataStore(ApplicationProvider.getApplicationContext())
+  private val fhirDataStore = AndroidFhirDataStore(ApplicationProvider.getApplicationContext())
 
   @Test
   fun observeSyncJobTerminalState() = runBlocking {
